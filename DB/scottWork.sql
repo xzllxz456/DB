@@ -75,9 +75,13 @@ FROM emp
 ORDER BY hiredate DESC;
 
 -- 20) emp 테이블에서 사원이름, 급여, 연봉을 구하고 연봉이 많은 순으로 정렬하시오.
-SELECT ename, sal, sal*12
+SELECT ename, sal, sal*12 as 연봉
 FROM emp
 ORDER BY sal*12 DESC;
+
+SELECT ename, sal, sal*12 as 연봉
+FROM emp
+ORDER BY 연봉 DESC;
 
 --21)10번 부서와 20번부서에서 근무하고 있는 사원의 이름과 부서번호를 출력하는데 
 -- 이름을 영문자순으로 표시하시오.
@@ -91,4 +95,4 @@ ORDER BY ename ASC;
 SELECT ename, sal, comm
 FROM emp
 WHERE comm IS NOT NULL AND comm <>0
-ORDER BY comm ASC;
+ORDER BY comm desc;
