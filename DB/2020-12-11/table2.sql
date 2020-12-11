@@ -1,0 +1,212 @@
+/*
+    사용자나 응용프로그램이 데이터베이스를 부정확하게 수정하는것을 허용 하지 않는성질
+    무결성 : column에 적용
+            column에 지정하는 성질
+    baseball memberNumber -> 중복되지 않는다. 반드시 기입 id, 주민등록번호, e-mail
+    
+    primaty key : 기본키, null을 허용하지 않음, 중복 허용 하지 않음
+    Unique Key : 고유키, null을 허용, 중복을 허용 하지 않는다.
+    Foreign Key : 외래키. 목적(JOIN) -> table과 table을 연결, 
+                  외래키로 연결된 컬럼은 연결된 테이블에서 PK(primaty key), UK(Unique Key) 로 
+                  설정 되어 있어야 한다
+    CHECK : 범위를 설정. NULL을 허용
+    NOT NULL : NULL을 허용하지 않는다.
+*/
+-- NOT NULL
+CREATE TABLE TB_TEST(
+    COL1 VARCHAR2(10) NOT NULL,
+    COL2 VARCHAR2(20)
+);
+
+INSERT INTO tb_test(COL1, COL2)
+VALUES('AAA', '111');
+
+SELECT * FROM tb_test;
+INSERT INTO tb_test(COL1)
+VALUES('BBB');
+INSERT INTO tb_test(COL2)-- 에러 COL1 이 NULL
+VALUES('222');
+INSERT INTO tb_test(COL1, COL2)-- 에러 COL1 이 NULL
+VALUES('', '111');
+
+-- Primary Key = NOT NULL + Unique
+DROP TABLE TB_TEST
+CASCADE CONSTRAINTS;
+
+CREATE TABLE tb_test(
+    COL_P VARCHAR2(10) CONSTRAINT PK_TEST PRIMARY KEY,
+    --COL_P VARCHAR2(10)PRIMARY KEY,
+    COL1 VARCHAR2(20),
+    COL2 VARCHAR2(30)
+);
+
+INSERT INTO tb_test(COL_P, COL1, COL2)
+VALUES('AAA', '111', 'aaa');
+
+INSERT INTO tb_test(COL_P, COL1, COL2)
+VALUES('BBB', '111', 'aaa');
+
+SELECT * FROM tb_test;
+INSERT INTO tb_test( COL1, COL2)
+VALUES('111', 'aaa');
+INSERT INTO tb_test(COL_P, COL1, COL2)
+VALUES('NULL', '111', 'aaa');
+
+-- UNIQUE : 해당 컬럼에서 중복된 값은 사용 불가 - 한개의 값만을 입력, NULL 허용 == E-MAIL
+DROP TABLE tb_test;
+
+CREATE TABLE TB_TEST(
+   COL_U VARCHAR2(10) CONSTRAINT UK_TEST UNIQUE,
+ --COL_U VARCHAR(10)  UNIQUE,
+    COL1 VARCHAR2(20),
+    COL2 VARCHAR2(30)
+);
+
+INSERT INTO tb_test(COL_U, COL1, COL2)
+VALUES('AAA', 'aaa', '111');
+INSERT INTO tb_test(COL1, COL2)
+VALUES( 'aaa', '111');
+
+ALTER TABLE tb_test
+drop constraint UK_TEST;
+
+-- POREIGN KEY : 외래키
+-- DEPARTMENTS
+CREATE TABLE TB_PARENT(
+    COL_PK VARCHAR2(10) CONSTRAINT PK_PARENT PRIMARY KEY,
+    COL1 VARCHAR2(20),
+    COL2 VARCHAR2(20)
+);
+
+-- EMPLOYERS
+CREATE TABLE TB_CHILD(
+    KEY1 VARCHAR2(10),
+    KEY2 VARCHAR2(20),
+    COL_PK VARCHAR2(10),  -- .이게 더 커야한다 -- 외부를 접속하기 위한 키
+    CONSTRAINT FK_CHILD FOREIGN KEY(COL_PK) REFERENCES TB_PARENT(COL_PK)
+);
+
+INSERT INTO tb_parent(COL_PK, COL1, COL2)
+VALUES('AAA','aaa','111');
+
+INSERT INTO tb_parent(COL_PK, COL1, COL2)
+VALUES('BBB','bbb','222');
+
+INSERT INTO tb_parent(COL_PK, COL1, COL2)
+VALUES('CCC','ccc','333');
+
+SELECT * FROM tb_parent;
+
+INSERT INTO tb_child(KEY1, KEY2, COL_PK)
+VALUES('111','222','AAA');
+INSERT INTO tb_child(KEY1, KEY2, COL_PK)
+VALUES('111','222','DDD');
+
+INSERT INTO tb_child(KEY1, KEY2)
+VALUES('111','222');
+SELECT * FROM tb_child;
+
+-- CHECK : 지정된 값외 입력할 수 없고, NULL을 허용
+CREATE TABLE TB_CHECK(
+    COL1 VARCHAR2(10),
+    KEY1 VARCHAR2(10),
+    CONSTRAINT TB_CHK1 CHECK(COL1 IN ('사과','배','바나나')),
+    CONSTRAINT TB_CHK2 CHECK(KEY1 > 0 AND KEY1 <= 100)
+);
+INSERT INTO TB_CHECK(COL1, KEY1)
+VALUES('사과', 12);
+INSERT INTO TB_CHECK(COL1, KEY1)
+VALUES('배', 0);
+INSERT INTO TB_CHECK(COL1, KEY1)
+VALUES('', 25);
+INSERT INTO TB_CHECK(COL1, KEY1)
+VALUES('', '');
+
+
+-- TABLE을 작성하라.
+-- TEAM : 팀 아이디, 지역, 팀 명, 개설 날짜, 전화번호, 홈페이지
+-- PLAYER : 선수번호, 선수 명, 등록일, 포지션, 키, 팀 아이디 외래키로 연결한다.
+CREATE TABLE TEAM(
+    TEAM_ID VARCHAR2(15) CONSTRAINT PK_TEAM PRIMARY KEY, 
+    TEAM_LOC VARCHAR2(10), 
+    TEAM_NAME VARCHAR2(30) CONSTRAINT UK_NAME UNIQUE, 
+    STARTDATE DATE, 
+    PHONE_NUM VARCHAR2(13), 
+    TEAM_PAGE VARCHAR2(20)
+);
+CREATE TABLE PALYER(
+    PALYER_ID NUMBER CONSTRAINT PK_PALYER PRIMARY KEY,
+    PALYER_NAME VARCHAR2(10),
+    PALYER_DATE DATE,
+    PALYER_POS VARCHAR2(10),
+    PALYER_HEIGET NUMBER,
+    TEAM_ID VARCHAR2(15), CONSTRAINT PALYER FOREIGN KEY(TEAM_ID) REFERENCES TEAM(TEAM_ID)
+);
+
+-- TEAM 두개만 등록하라.
+INSERT INTO TEAM(TEAM_ID, TEAM_LOC, TEAM_NAME, STARTDATE, PHONE_NUM, TEAM_PAGE)
+VALUES ('10', '인천', '타이거즈', '2020-11-11', '032-111-1111', 'ABSCOM');
+INSERT INTO TEAM(TEAM_ID, TEAM_LOC, TEAM_NAME, STARTDATE, PHONE_NUM, TEAM_PAGE)
+VALUES ('11', '부산', '이글즈', '2020-11-12', '032-111-2222', 'CDFCOM');
+-- 두개의 TEAM에 선수를 각각 3명씩 등록하라.
+INSERT INTO PALYER(PALYER_ID,PALYER_NAME,PALYER_DATE,PALYER_POS,PALYER_HEIGET,TEAM_ID)
+VALUES('01', '개똥이', '2020-11-15', '타자', 170, 10);
+INSERT INTO PALYER(PALYER_ID,PALYER_NAME,PALYER_DATE,PALYER_POS,PALYER_HEIGET,TEAM_ID)
+VALUES('02', '개똥3', '2020-11-15', '타자', 172, 10);
+INSERT INTO PALYER(PALYER_ID,PALYER_NAME,PALYER_DATE,PALYER_POS,PALYER_HEIGET,TEAM_ID)
+VALUES('03', '개똥2', '2020-11-15', '투수', 173, 10);
+
+
+INSERT INTO PALYER(PALYER_ID,PALYER_NAME,PALYER_DATE,PALYER_POS,PALYER_HEIGET,TEAM_ID)
+VALUES('01', '개똥이', '2020-11-15', '타자', 170, 11);
+
+-- TABLE을 작성하라.
+-- PRODUCT(상품) : 상품번호, 상품명, 상품가격, 상품설명
+-- CONSUMER(소비자) : 소비자 ID, 이름, 나이
+-- CART(장바구니) : 장바구니 번호, 소비자 ID, 상품번호, 수량 외래키로 연결한다.
+
+DROP TABLE CART;
+DROP TABLE CONSUMER;
+DROP TABLE PRODUCT;
+
+CREATE TABLE CART(
+    장바구니번호 NUMBER CONSTRAINT PK_CART PRIMARY KEY,
+    PERID VARCHAR2(20),
+    PRU_NUM VARCHAR2(20), 
+    수량 NUMBER,
+    CONSTRAINT PRU_NUM FOREIGN KEY(PRU_NUM) REFERENCES PRODUCT(PRU_NUM),
+    CONSTRAINT PERID FOREIGN KEY(PERID) REFERENCES CONSUMER(PERID)
+);
+CREATE TABLE CONSUMER(
+    PERID VARCHAR2(20) CONSTRAINT PK_CONSUMER PRIMARY KEY, 
+    이름 VARCHAR2(20) NOT NULL,
+    나이 NUMBER
+);
+
+CREATE TABLE PRODUCT(
+PRU_NUM VARCHAR2(20) CONSTRAINT PK_PRODUCT PRIMARY KEY,
+상품명 VARCHAR2(20),
+상품가격 NUMBER,
+상품설명 VARCHAR2(50)
+);
+
+-- 상품을 3개만 등록 하라.
+
+-- 두명의 소비자를 등록하라.
+INSERT INTO PRODUCT(PRU_NUM, "상품명", "상품가격", "상품설명")
+VALUES('101', '새우깡', 1500, '새우깡에는 새우가 없습니다');
+
+INSERT INTO PRODUCT(PRU_NUM, 상품명, 상품가격, 상품설명)
+VALUES(102, '포테이토칩', 2300, '감자로 만듭니다');
+-- 소비자의 장바구니에 상품 추가하라.
+INSERT INTO consumer(PERID, 이름, 나이)
+VALUES('hgd', '홍길동', 24);
+
+INSERT INTO consumer(PERID, 이름, 나이)
+VALUES('ijm', '일지매', 22);
+
+-- cart
+INSERT INTO cart(장바구니번호, PERID, PRU_NUM, 수량)
+VALUES(1, 'hgd', 102, 2);
+
+SELECT * FROM cart;
