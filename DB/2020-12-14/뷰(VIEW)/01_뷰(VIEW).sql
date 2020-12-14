@@ -1,0 +1,45 @@
+/* **************
+뷰(VIEW) : 하나 또는 둘 이상의 테이블로 부터
+    데이터의 부분집합을 테이블인 것처럼 사용하는 객체(가상테이블)
+CREATE [OR REPLACE] [FORCE] VIEW 뷰명칭 [(컬럼별칭1, 컬럼별칭2, ..., 컬럼별칭n)]
+AS 
+SELECT 문장
+[옵션];
+--읽기전용 옵션 : WITH READ ONLY
+
+--뷰 삭제
+DROP VIEW 뷰이름;
+*******************/
+CREATE OR REPLACE VIEW EMP_DEPT
+AS 
+SELECT E.EMPLOYEE_ID, E.FIRST_NAME, E.JOB_ID, E.SALARY, E.HIRE_DATE
+     , E.DEPARTMENT_ID
+     , D.DEPARTMENT_NAME, D.MANAGER_ID
+FROM EMPLOYEES E, DEPARTMENTS D
+WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+-----------
+-- FORCE : 테이블이 없어도 뷰를 강제로 생성
+CREATE FORCE VIEW TEST AS SELECT * FROM TEST999;
+CREATE TABLE TEST999 (
+    AAAA VARCHAR2(30)
+);
+INSERT INTO TEST999 VALUES ('홍길동');
+COMMIT;
+SELECT * FROM TEST;
+
+--뷰 삭제
+DROP VIEW TEST;
+--------------------
+SELECT *
+FROM EMP_DEPT
+ORDER BY EMPLOYEE_ID
+;
+
+
+
+
+
+
+
+
+
