@@ -1,0 +1,12 @@
+무결성 : 데이터베이스를 부정확하게 수정하는것을 허용X
+primaty key : 기본키, null을 허용하지 않음, 중복 허용 하지 않음
+Unique Key : 고유키, null을 허용, 중복을 허용 하지 않는다.
+Foreign Key : 외래키. 목적(JOIN) -> table과 table을 연결,
+CHECK : 범위를 설정. NULL을 허용
+NOT NULL : NULL을 허용하지 않는다.
+Table CREATE 생성 DROP삭제, ALTER 수정, INSERT  추가
+순위 함수
+RANK() 동일값 중복 마지막은 N개
+DENSE RANK() 동일값 중복 순서대로
+ROW_NUMBER()  순서대로
+ROWNUM 순서대로
